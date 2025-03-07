@@ -31,9 +31,28 @@ def load_data():
 
 # ----------------- Data Cleaning -----------------
 def clean_data(df):
-    """Handles missing values and duplicates."""
-    df.drop_duplicates(inplace=True)
-    df.fillna(0, inplace=True)  # Fill missing values with 0
+    """Handles missing values intelligently and removes duplicate columns."""
+    print("\n🛠️ Data Cleaning in Progress...")
+
+    # Show missing value statistics
+    missing_stats = df.isnull().sum() / len(df) * 100
+    print(f"🔍 Missing Data (% per column):\n{missing_stats}")
+
+    # Remove columns with 100% missing values
+    df.dropna(axis=1, how="all", inplace=True)
+
+    # Handle missing values intelligently
+    for col in df.columns:
+        if df[col].isnull().sum() > 0:
+            if df[col].dtype == "object":
+                df[col].fillna(df[col].mode()[0], inplace=True)  # Fill with mode
+            else:
+                df[col].fillna(df[col].median(), inplace=True)  # Fill with median
+
+    # Remove duplicate columns
+    df = df.loc[:, ~df.T.duplicated()]
+
+    print("\n✅ Data Cleaned Successfully!")
     return df
 
 
