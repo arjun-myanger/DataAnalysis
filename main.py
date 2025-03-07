@@ -6,17 +6,26 @@ from fpdf import FPDF
 
 
 # ----------------- Load Data -----------------
-def load_data():
-    """Asks user for a CSV file and loads it into a DataFrame."""
-    file_path = input("Enter the path to your CSV file: ").strip()
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 
-    if not os.path.exists(file_path):
-        print("❌ Error: File not found. Please check the path and try again.")
+
+def load_data():
+    """Loads CSV file with GUI-based selection and robust handling."""
+    Tk().withdraw()  # Hide the root window
+    file_path = askopenfilename(filetypes=[("CSV Files", "*.csv")])
+
+    if not file_path:
+        print("❌ No file selected. Exiting...")
         return None
 
-    df = pd.read_csv(file_path)
+    try:
+        df = pd.read_csv(file_path, encoding="utf-8")
+    except UnicodeDecodeError:
+        df = pd.read_csv(file_path, encoding="ISO-8859-1")  # Fallback encoding
+
     print("\n✅ Data Loaded Successfully!")
-    print(df.head())  # Preview the first few rows
+    print(df.head())  # Show first few rows
     return df
 
 
