@@ -33,7 +33,7 @@ pip install pandas matplotlib seaborn fpdf
 
 ### 2️⃣ Clone the Repository (Optional)
 ```sh
-git clone https://github.com/YOUR_USERNAME/data_analysis_tool.git
+git clone https://github.com/arjun-myanger/data_analysis_tool.git
 cd data_analysis_tool
 ```
 
