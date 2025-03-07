@@ -50,35 +50,60 @@ def show_summary(df):
 
 
 def generate_visualizations(df):
-    """Allows user to choose columns for visualizations."""
-    print(
-        "\n📈 Available Numeric Columns:",
-        df.select_dtypes(include=["number"]).columns.tolist(),
-    )
+    """Allows user to choose numeric columns for visualizations."""
+    numeric_columns = df.select_dtypes(include=["number"]).columns.tolist()
 
-    col_x = input("Enter the column for X-axis: ").strip()
-    col_y = input("Enter the column for Y-axis: ").strip()
+    print("\n📈 Available Numeric Columns:")
+    for idx, col in enumerate(numeric_columns, start=1):
+        print(f"{idx}. {col}")
 
-    if col_x not in df.columns or col_y not in df.columns:
-        print("❌ Invalid column names. Please try again.")
-        return
+    try:
+        x_index = int(input("Enter the number for the X-axis column: ")) - 1
+        y_index = int(input("Enter the number for the Y-axis column: ")) - 1
 
-    # Create scatter plot
-    plt.figure(figsize=(8, 5))
-    sns.scatterplot(x=df[col_x], y=df[col_y])
-    plt.xlabel(col_x)
-    plt.ylabel(col_y)
-    plt.title(f"{col_y} vs {col_x}")
-    plt.savefig("reports/data_visualization.png")
-    plt.show()
-    print("✅ Visualization saved as 'reports/data_visualization.png'")
+        if x_index not in range(len(numeric_columns)) or y_index not in range(
+            len(numeric_columns)
+        ):
+            print("❌ Invalid selection. Please enter a valid number from the list.")
+            return
+
+        col_x = numeric_columns[x_index]
+        col_y = numeric_columns[y_index]
+
+        # Generate scatter plot
+        plt.figure(figsize=(8, 5))
+        sns.scatterplot(x=df[col_x], y=df[col_y])
+        plt.xlabel(col_x)
+        plt.ylabel(col_y)
+        plt.title(f"{col_y} vs {col_x}")
+
+        save_path = "reports/data_visualization.png"
+        plt.savefig(save_path)
+        print(f"✅ Visualization saved as '{save_path}'")
+        plt.show()
+
+    except ValueError:
+        print("❌ Please enter valid numbers.")
 
 
 def find_correlations(df):
     """Finds and displays correlation between numeric columns."""
-    print("\n🔗 Correlation Matrix:")
-    corr_matrix = df.corr()
-    print(corr_matrix)
+    print("\n🔗 Finding Correlations...")
+
+    # Use a copy of df instead of modifying the original
+    numeric_df = df.select_dtypes(include=["number"]).copy()
+
+    if numeric_df.empty:
+        print("❌ No numeric columns found to calculate correlation.")
+        return
+
+    corr_matrix = numeric_df.corr()
+
+    if corr_matrix.empty:
+        print("❌ Correlation matrix is empty. No valid correlations.")
+    else:
+        print("\n✅ Correlation Matrix:")
+        print(corr_matrix)
 
 
 def export_report(df):
@@ -111,7 +136,7 @@ def main():
 
     df = clean_data(df)
 
-    while True:
+    while True:  # Ensure this loop exists
         choice = user_menu()
 
         if choice == "1":
@@ -119,12 +144,13 @@ def main():
         elif choice == "2":
             generate_visualizations(df)
         elif choice == "3":
-            find_correlations(df)
+            print("\n🛠️ Running Correlation Analysis...")  # Debugging message
+            find_correlations(df)  # Calls the function
         elif choice == "4":
             export_report(df)
         elif choice == "0":
             print("👋 Exiting. Thank you for using the data analysis tool!")
-            break
+            break  # This will now correctly exit the while loop
         else:
             print("❌ Invalid choice. Please select a valid option.")
 
